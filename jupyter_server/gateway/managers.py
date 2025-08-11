@@ -304,7 +304,6 @@ class GatewayKernelSpecManager(KernelSpecManager):
         response = await gateway_request(kernel_spec_url, method="GET")
         kernel_specs = json_decode(response.body)
         kernel_specs = self._replace_path_kernelspec_resources(kernel_specs)
-        self.log.debug(f"List kernel spec resources at: {kernel_specs}")
         return kernel_specs
 
     async def get_kernel_spec(self, kernel_name, **kwargs):
