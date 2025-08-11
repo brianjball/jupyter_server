@@ -54,6 +54,7 @@ class GatewayMappingKernelManager(AsyncMappingKernelManager):
     def __init__(self, **kwargs):
         """Initialize a gateway mapping kernel manager."""
         super().__init__(**kwargs)
+        GatewayClient.instance().base_url = self.parent.base_url
         self.kernels_url = url_path_join(
             GatewayClient.instance().url or "", GatewayClient.instance().kernels_endpoint or ""
         )
@@ -218,6 +219,8 @@ class GatewayKernelSpecManager(KernelSpecManager):
     def __init__(self, **kwargs):
         """Initialize a gateway kernel spec manager."""
         super().__init__(**kwargs)
+        GatewayClient.instance().base_url = self.parent.base_url
+
         base_endpoint = url_path_join(
             GatewayClient.instance().url or "", GatewayClient.instance().kernelspecs_endpoint
         )
@@ -248,7 +251,7 @@ class GatewayKernelSpecManager(KernelSpecManager):
             resources = kernelspecs[kernel_name]["resources"]
             for resource_name in resources:
                 original_path = resources[resource_name]
-                split_eg_base_url = str.rsplit(original_path, sep="/kernelspecs/", maxsplit=1)
+                split_eg_base_url = str.rsplit(original_path, sep="/kernelspecs", maxsplit=1)
                 if len(split_eg_base_url) > 1:
                     new_path = url_path_join(
                         self.parent.base_url, "kernelspecs", split_eg_base_url[1]
@@ -301,6 +304,7 @@ class GatewayKernelSpecManager(KernelSpecManager):
         response = await gateway_request(kernel_spec_url, method="GET")
         kernel_specs = json_decode(response.body)
         kernel_specs = self._replace_path_kernelspec_resources(kernel_specs)
+        self.log.debug(f"List kernel spec resources at: {kernel_specs}")
         return kernel_specs
 
     async def get_kernel_spec(self, kernel_name, **kwargs):
